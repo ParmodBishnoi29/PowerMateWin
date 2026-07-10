@@ -12,13 +12,22 @@ last_action_time = 0
 import pygetwindow as gw
 
 def bring_window_to_front(window_title):
+    import pygetwindow as gw
     try:
         windows = gw.getWindowsWithTitle(window_title)
         for w in windows:
             if window_title.lower() in w.title.lower():
-                if w.isMinimized:
-                    w.restore()
-                w.activate()
+                if "explorer" in w.title.lower() and "file explorer" not in window_title.lower():
+                    continue
+                try:
+                    if w.isMinimized:
+                        w.restore()
+                    import ctypes
+                    ctypes.windll.user32.keybd_event(0x12, 0, 0, 0)
+                    ctypes.windll.user32.keybd_event(0x12, 0, 2, 0)
+                    w.activate()
+                except:
+                    pass
                 return True
     except Exception as e:
         print(f"Window activation error: {e}")
@@ -34,15 +43,29 @@ def bring_app_to_front(target_path):
     target_pids = set()
     for p in psutil.process_iter(['pid', 'name']):
         try:
-            if p.info['name'] and p.info['name'].lower().replace(".exe", "") == target_exe_base:
-                target_pids.add(p.info['pid'])
+            if p.info['name']:
+                p_name = p.info['name'].lower().replace(".exe", "")
+                if p_name == target_exe_base:
+                    target_pids.add(p.info['pid'])
         except:
             pass
+            
+    if not target_pids:
+        fallback_name = target_exe_base.split()[0]
+        for p in psutil.process_iter(['pid', 'name']):
+            try:
+                if p.info['name']:
+                    p_name = p.info['name'].lower().replace(".exe", "")
+                    if p_name == fallback_name or fallback_name in p_name:
+                        target_pids.add(p.info['pid'])
+            except:
+                pass
             
     if not target_pids:
         return False
         
     try:
+        import pygetwindow as gw
         for w in gw.getAllWindows():
             if not w.title:
                 continue
@@ -53,9 +76,14 @@ def bring_app_to_front(target_path):
                 ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
                 
                 if pid.value in target_pids:
-                    if w.isMinimized:
-                        w.restore()
-                    w.activate()
+                    try:
+                        if w.isMinimized:
+                            w.restore()
+                        ctypes.windll.user32.keybd_event(0x12, 0, 0, 0)
+                        ctypes.windll.user32.keybd_event(0x12, 0, 2, 0)
+                        w.activate()
+                    except:
+                        pass
                     return True
             except:
                 continue
