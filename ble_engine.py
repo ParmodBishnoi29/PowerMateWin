@@ -24,6 +24,46 @@ def bring_window_to_front(window_title):
         print(f"Window activation error: {e}")
     return False
 
+def bring_app_to_front(target_path):
+    import os
+    import psutil
+    import ctypes
+    
+    target_exe_base = os.path.basename(target_path).replace(".exe", "").replace(".lnk", "").lower()
+    
+    target_pids = set()
+    for p in psutil.process_iter(['pid', 'name']):
+        try:
+            if p.info['name'] and p.info['name'].lower().replace(".exe", "") == target_exe_base:
+                target_pids.add(p.info['pid'])
+        except:
+            pass
+            
+    if not target_pids:
+        return False
+        
+    try:
+        for w in gw.getAllWindows():
+            if not w.title:
+                continue
+                
+            try:
+                hwnd = w._hWnd
+                pid = ctypes.c_uint()
+                ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+                
+                if pid.value in target_pids:
+                    if w.isMinimized:
+                        w.restore()
+                    w.activate()
+                    return True
+            except:
+                continue
+    except Exception as e:
+        print(f"App activation error: {e}")
+        
+    return False
+
 def notification_handler(sender, data):
     global last_action_time
     if len(data) > 0:
@@ -56,8 +96,7 @@ def notification_handler(sender, data):
                         keyboard.send(target)
                     elif action_type == "app":
                         import os
-                        app_name = os.path.basename(target).replace(".exe", "")
-                        if not bring_window_to_front(app_name):
+                        if not bring_app_to_front(target):
                             os.startfile(target)
                     elif action_type == "website":
                         import webbrowser
