@@ -1,0 +1,24 @@
+# Compiled python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller
+build/
+dist/
+*.spec
+Output/
+
+# User Settings
+settings.json
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# CustomTkinter
+customtkinter/
+
+# Installer output
+PowerMateWin_Setup.exe

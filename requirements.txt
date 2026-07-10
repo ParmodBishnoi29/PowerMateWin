@@ -1,0 +1,7 @@
+bleak==0.21.1
+keyboard==0.13.5
+pystray==0.9.1
+Pillow==10.3.0
+customtkinter==5.2.2
+pygetwindow==0.0.9
+winotify==1.1.0
