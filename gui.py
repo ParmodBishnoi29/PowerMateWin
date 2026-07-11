@@ -37,8 +37,8 @@ class PowerMateApp(ctk.CTk):
             "0x70": "Press + Spin Right"
         }
         
-        self.action_types = ["Keyboard Hotkey", "Launch App", "Open Website"]
-        self.action_mapping = {"Keyboard Hotkey": "hotkey", "Launch App": "app", "Open Website": "website"}
+        self.action_types = ["Keyboard Hotkey", "Launch App", "Open Website", "Scroll"]
+        self.action_mapping = {"Keyboard Hotkey": "hotkey", "Launch App": "app", "Open Website": "website", "Scroll": "scroll"}
         self.reverse_mapping = {v: k for k, v in self.action_mapping.items()}
         
         self.dropdowns = {}
@@ -135,6 +135,17 @@ class PowerMateApp(ctk.CTk):
                 self.config_data[hex_code] = {"type": "website", "target": url}
                 config_manager.save_config(self.config_data)
                 self.buttons[hex_code].configure(text=url[:20] + "..." if len(url) > 20 else url)
+        elif action_type == "scroll":
+            current_target = self.config_data.get(hex_code, {}).get("target", "Up")
+            directions = ["Up", "Down", "Left", "Right"]
+            try:
+                next_index = (directions.index(current_target) + 1) % len(directions)
+            except ValueError:
+                next_index = 0
+            new_target = directions[next_index]
+            self.config_data[hex_code] = {"type": "scroll", "target": new_target}
+            config_manager.save_config(self.config_data)
+            self.buttons[hex_code].configure(text=new_target)
 
     def record_shortcut(self, hex_code):
         btn = self.buttons[hex_code]

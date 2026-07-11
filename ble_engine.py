@@ -129,6 +129,19 @@ def notification_handler(sender, data):
                     elif action_type == "website":
                         import webbrowser
                         webbrowser.open(target)
+                    elif action_type == "scroll":
+                        import ctypes
+                        MOUSEEVENTF_WHEEL = 0x0800
+                        MOUSEEVENTF_HWHEEL = 0x1000
+                        WHEEL_DELTA = 120
+                        if target == "Up":
+                            ctypes.windll.user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, WHEEL_DELTA, 0)
+                        elif target == "Down":
+                            ctypes.windll.user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -WHEEL_DELTA, 0)
+                        elif target == "Right":
+                            ctypes.windll.user32.mouse_event(MOUSEEVENTF_HWHEEL, 0, 0, WHEEL_DELTA, 0)
+                        elif target == "Left":
+                            ctypes.windll.user32.mouse_event(MOUSEEVENTF_HWHEEL, 0, 0, -WHEEL_DELTA, 0)
                 except Exception as e:
                     print(f"Error executing action: {e}")
 
